@@ -35,7 +35,7 @@ class Tab {
 
     public function __construct(array $options = []) {
         $this->tabsContent = [];
-        $this->id = uniqid();
+        $this->id = "tab-".uniqid();
 
         $this->setOptions($options);
     }

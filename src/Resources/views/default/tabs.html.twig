@@ -1,4 +1,4 @@
-<ul id="tabs" class="nav nav-tabs">
+<ul class="nav nav-tabs" style="margin: 0;">
     <li class="tab-title">
         {% if tab.icon %}
             <i class="{{ tab.icon }}"></i>
@@ -9,11 +9,11 @@
         {{ tab.name|trans({},"titles") }}
     </li>
     <li>
-        <ul class="nav nav-tabs">
+        <ul id="{{ tab.id }}" class="nav nav-tabs" style="margin: 0;">
             {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
-                <li>
-                    <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}">
-                        {{ tabContent.name }}
+                <li {% if loop.first %}class="active"{% endif%}>
+                    <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}" {% if tabContent.route is not null %}tab-ajax="true" data-url="{{ url(tabContent.route,tabContent.routeParameters) }}"{% endif %}>
+                        {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabContent.name }}
                     </a>
                 </li>
             {% endfor %}
@@ -26,7 +26,49 @@
             {% for field, metadata in tabContent.fields %}
                 {% include 'EasyAdminExtensionBundle:default:field_show.html.twig' %}
             {% endfor %}
+            {% if tabContent.route is not null %}
+                
+            {% endif%}
         </div>
     {% endfor %}
-{#    <div class="tab-pane" id="bar">Some static text. (displayed if AJAX request fails)</div>#}
 </div>
+<div id="lo-{{ tab.id }}" class="hide">
+    <div class="tab-pane">Cargando contenido...</div>
+</div>
+<script>
+    $(function() {
+        $('[tab-ajax="true"]').click(function(e) {
+            e.preventDefault();
+            $this = $(this);
+            if($this.parent().hasClass("active") == true){
+                return;
+            }
+            var targ = $(this).attr('href');
+            var loadurl = $(this).attr('data-url');
+{#            console.log(loadurl);#}
+{#            console.log(targ);#}
+            $(targ).html($("#lo-{{ tab.id }}").html());
+            $(targ).load(loadurl+'?ajax=true', function(){
+                $this.tab('show');
+                $('#{{ tab.id }}').tab(); //reinitialize tabs
+            });
+        });
+    });
+</script>
+<style>
+    .tab-title {
+        padding: 11px;
+        background-color: #0071BD;
+        color: #fff;
+    }
+    .tab-content {
+{#        background-color: #fbfbfb;#}
+        background-color: #ffffff;
+        padding: 16px 12px;
+        position: relative;
+        -webkit-box-shadow: 1px 0 10px 1px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 1px 0 10px 1px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 0 10px 1px rgba(0, 0, 0, 0.3);
+        margin-bottom: 20px;
+    }
+</style>
