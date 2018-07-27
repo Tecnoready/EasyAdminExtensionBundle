@@ -12,6 +12,7 @@
 namespace AlterPHP\EasyAdminExtensionBundle\Model\Tab;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\DependencyInjection\Container;
 
 /**
  * Contenido de tab
@@ -21,16 +22,28 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class TabContent {
     
     private $id;
+    
+    /**
+     * Tipo de contenido de tab
+     * @var Tab::TAB_* 
+     */
+    private $type;
     private $url;
     private $name;
     private $order;
     private $options;
     private $active = false;
     private $title;
-
+    
+    /**
+     * Metadata of properties
+     * @var array
+     */
+    private $fields;
 
     public function __construct(array $options = []) {
         $this->setOptions($options);
+        $this->fields = [];
     }
     
     /**
@@ -42,8 +55,9 @@ class TabContent {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             "add_content_div" => true,
+            "url" => null,
         ]);
-        $resolver->setRequired(["url"]);
+//        $resolver->setRequired(["url"]);
         $this->options = $resolver->resolve($options);
         
         return $this;
@@ -74,7 +88,17 @@ class TabContent {
         $this->url = $url;
         return $this;
     }
+    
+    public function getType() {
+        return $this->type;
+    }
 
+    public function setType($type) {
+        $this->type = $type;
+        return $this;
+    }
+
+    
     public function setName($name) {
         $this->name = $name;
         return $this;
@@ -111,8 +135,16 @@ class TabContent {
         $this->title = $title;
         return $this;
     }
+    
+    public function getFields() {
+        return $this->fields;
+    }
 
-                
+    public function addField($field,array $metadata) {
+        $this->fields[$field] = $metadata;
+        return $this;
+    }
+
     /**
      * Representacion de la tab en arary
      * @return array
@@ -126,5 +158,22 @@ class TabContent {
             "title" => $this->title,
         ];
         return $data;
+    }
+    
+    public static function createFromMetadata(array $metadata,Container $container) {
+        $instance = new self();
+        
+        $instance->setName($metadata["title"]);
+        $instance->setType($metadata["type"]);
+        
+        if(isset($metadata["route"])){
+            $routeParameters = isset($metadata["route_parameters"]) ? $metadata["route"] : [];
+            $instance
+                    ->setUrl($container
+                            ->get("router")
+                            ->generate($metadata["route"], $routeParameters,\Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_PATH));
+        }
+        
+        return $instance;
     }
 }

@@ -1,0 +1,32 @@
+<ul id="tabs" class="nav nav-tabs">
+    <li class="tab-title">
+        {% if tab.icon %}
+            <i class="{{ tab.icon }}"></i>
+        {% else %}
+            <i class="fa fa-check"></i>
+        {% endif %}
+        &nbsp;
+        {{ tab.name|trans({},"titles") }}
+    </li>
+    <li>
+        <ul class="nav nav-tabs">
+            {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
+                <li>
+                    <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}">
+                        {{ tabContent.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+</ul>
+<div class="tab-content">
+    {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
+        <div class="tab-pane {% if loop.first %}active{% endif%}" id="{{ tabContent.id }}">
+            {% for field, metadata in tabContent.fields %}
+                {% include 'EasyAdminExtensionBundle:default:field_show.html.twig' %}
+            {% endfor %}
+        </div>
+    {% endfor %}
+{#    <div class="tab-pane" id="bar">Some static text. (displayed if AJAX request fails)</div>#}
+</div>

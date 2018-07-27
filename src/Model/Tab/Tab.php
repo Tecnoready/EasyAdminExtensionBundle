@@ -19,6 +19,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @author Carlos Mendoza <inhack20@gmail.com>
  */
 class Tab {
+    const TAB_TITLE = "tab_title";
+    const TAB_CONTENT = "tab_content";
 
     private $id;
     private $name;
@@ -33,7 +35,7 @@ class Tab {
 
     public function __construct(array $options = []) {
         $this->tabsContent = [];
-        $this->id = md5(\Pandco\Bundle\AppBundle\Service\Util\AppUtil::getId());
+        $this->id = uniqid();
 
         $this->setOptions($options);
     }
@@ -59,6 +61,13 @@ class Tab {
 
     public function getTabsContent() {
         return $this->tabsContent;
+    }
+    
+    /**
+     * @return TabContent
+     */
+    public function getLastTabContent() {
+        return end($this->tabsContent);
     }
 
     public function setName($name) {
@@ -113,6 +122,19 @@ class Tab {
             $data["tabsContent"][] = $tabContent->toArray();
         }
         return $data;
+    }
+    
+    public static function createFromMetadata(array $metadata) {
+        $instance = new self();
+        
+        if(isset($metadata["title"])){
+            $instance->setName($metadata["title"]);
+        }
+        if(isset($metadata["icon"])){
+            $instance->setIcon($metadata["icon"]);
+        }
+        
+        return $instance;
     }
 
 }
