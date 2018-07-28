@@ -65,7 +65,12 @@ class AdminController extends BaseAdminController
                 $tab = Tab::createFromMetadata($metadata);
                 unset($fields[$field]);
             }else if($metadata["type"] == Tab::TAB_CONTENT){
-                $tabContent = TabContent::createFromMetadata($metadata,$this->container);
+                $routeParameters = isset($metadata["route_parameters"]) ? $metadata["route_parameters"] : [];
+                $routeParameters["id"]  = $id;
+                $routeParameters["entity"]  = $this->request->query->get('entity');
+                $routeParameters["action"]  = $this->request->query->get('action');
+                $metadata["route_parameters"] = $routeParameters;
+                $tabContent = TabContent::createFromMetadata($metadata);
                 if($tab === null){
                     $tab = Tab::createFromMetadata();
                 }
