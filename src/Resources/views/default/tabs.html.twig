@@ -13,7 +13,7 @@
             {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
                 <li {% if loop.first %}class="active"{% endif%}>
                     <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}" {% if tabContent.route is not null %}tab-ajax="true" data-url="{{ url(tabContent.route,tabContent.routeParameters) }}"{% endif %}>
-                        {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabContent.name }}
+                        {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabContent.title }}
                     </a>
                 </li>
             {% endfor %}
@@ -33,7 +33,7 @@
     {% endfor %}
 </div>
 <div id="lo-{{ tab.id }}" class="hide">
-    <div class="tab-pane">Cargando contenido...</div>
+    <div class="tab-pane">{{ "Loading content"|trans }}</div>
 </div>
 <script>
     $(function() {
@@ -45,8 +45,6 @@
             }
             var targ = $(this).attr('href');
             var loadurl = $(this).attr('data-url');
-{#            console.log(loadurl);#}
-{#            console.log(targ);#}
             $(targ).html($("#lo-{{ tab.id }}").html());
             $(targ).load(loadurl+'?ajax=true', function(){
                 $this.tab('show');
@@ -62,7 +60,6 @@
         color: #fff;
     }
     .tab-content {
-{#        background-color: #fbfbfb;#}
         background-color: #ffffff;
         padding: 16px 12px;
         position: relative;

@@ -91,20 +91,13 @@ class Tab {
      * @throws \RuntimeException
      */
     public function addTabContent(TabContent $tabContent) {
-        $id = md5($tabContent->getName());
+        $id = md5($tabContent->getTitle());
         if (isset($this->tabsContent[$id])) {
             throw new \RuntimeException(sprintf("The tab content name '%s' is already added.", $tabContent->getName()));
-        }
-        if ($this->options["active_first"] && count($this->tabsContent) == 0) {
-            $tabContent->setActive(true);
         }
         $this->tabsContent[$id] = $tabContent;
         $tabContent->setId($id);
         return $this;
-    }
-
-    private function getNextTabPosition() {
-        return (count($this->tabsContent) + 1);
     }
 
     /**

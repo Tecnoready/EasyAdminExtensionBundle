@@ -11,9 +11,6 @@
 
 namespace AlterPHP\EasyAdminExtensionBundle\Model\Tab;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\DependencyInjection\Container;
-
 /**
  * Contenido de tab
  *
@@ -28,10 +25,7 @@ class TabContent {
      * @var Tab::TAB_* 
      */
     private $type;
-    private $name;
-    private $order;
     private $options;
-    private $active = false;
     private $title;
     private $icon;
     private $route;
@@ -55,13 +49,7 @@ class TabContent {
      * @return \Pandco\Bundle\AppBundle\Model\Core\Tab\TabContent
      */
     public function setOptions(array $options = []) {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            "add_content_div" => true,
-        ]);
-//        $resolver->setRequired(["url"]);
-        $this->options = $resolver->resolve($options);
-        
+        $this->options = $options;
         return $this;
     }
     
@@ -74,14 +62,6 @@ class TabContent {
         return $this->options[$name];
     }
     
-    public function getName() {
-        return $this->name;
-    }
-
-    public function getOrder() {
-        return $this->order;
-    }
-
     public function getType() {
         return $this->type;
     }
@@ -91,31 +71,12 @@ class TabContent {
         return $this;
     }
 
-    public function setName($name) {
-        $this->name = $name;
-        return $this;
-    }
-
-    public function setOrder($order) {
-        $this->order = $order;
-        return $this;
-    }
-    
     public function getId() {
         return $this->id;
     }
 
     public function setId($id) {
         $this->id = $id;
-        return $this;
-    }
-    
-    public function getActive() {
-        return $this->active;
-    }
-    
-    public function setActive($active) {
-        $this->active = $active;
         return $this;
     }
     
@@ -171,8 +132,6 @@ class TabContent {
     public function toArray() {
         $data = [
             "id" => $this->id,
-            "name" => $this->name,
-            "active" => $this->active,
             "options" => $this->options,
             "title" => $this->title,
         ];
@@ -182,7 +141,7 @@ class TabContent {
     public static function createFromMetadata(array $metadata) {
         $instance = new self();
         
-        $instance->setName($metadata["title"]);
+        $instance->setTitle($metadata["title"]);
         $instance->setType($metadata["type"]);
         if(isset($metadata["icon"])){
             $instance->setIcon($metadata["icon"]);
