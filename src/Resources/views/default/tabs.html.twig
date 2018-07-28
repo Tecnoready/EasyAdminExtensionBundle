@@ -6,14 +6,14 @@
             <i class="fa fa-check"></i>
         {% endif %}
         &nbsp;
-        {{ tab.name|trans({},"titles") }}
+        {{ tab.name|trans }}
     </li>
     <li>
         <ul id="{{ tab.id }}" class="nav nav-tabs" style="margin: 0;">
             {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
                 <li {% if loop.first %}class="active"{% endif%}>
                     <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}" {% if tabContent.route is not null %}tab-ajax="true" data-url="{{ url(tabContent.route,tabContent.routeParameters) }}"{% endif %}>
-                        {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabContent.title }}
+                        {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabContent.title|trans }}
                     </a>
                 </li>
             {% endfor %}
