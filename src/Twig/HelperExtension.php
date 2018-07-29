@@ -48,8 +48,4 @@ class HelperExtension extends AbstractExtension
             "item" => $item
         ]);
     }
-    
-    private function getMetadata($item,$property) {
-        
-    }
 }
