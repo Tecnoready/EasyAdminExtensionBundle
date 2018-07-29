@@ -56,8 +56,18 @@ class AdminController extends BaseAdminController
         $id = $this->request->query->get('id');
         $easyadmin = $this->request->attributes->get('easyadmin');
         $entity = $easyadmin['item'];
+//        var_dump($this->config);
+//        var_dump($easyadmin);
+//        die;
 
         $fields = $this->entity['show']['fields'];
+//        foreach ($this->config["entities"] as $entityConfig => $va) {
+//            var_dump($entityConfig);
+//            var_dump($this->config["entities"][$entityConfig]["properties"]);
+//        }
+//        var_dump($this->config["entities"]);
+//        var_dump($fields);
+//        die;
         $deleteForm = $this->createDeleteForm($this->entity['name'], $id);
         $tab = null;
         foreach ($fields as $field => $metadata) {
