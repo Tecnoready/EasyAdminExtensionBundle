@@ -33,13 +33,31 @@
     <div class="tab-pane">{{ "Loading content"|trans }}</div>
 </div>
 <script>
+    if(tabsService === undefined){
+        var tabsService = {
+            id: null,
+            isReloading: false,
+            setId: function(id){
+                this.id = id;
+            },
+            reload: function(){
+                this.isReloading = true;
+                $("#"+tabsService.id+" > li.active > a").click();
+            },
+            done: function(){
+                this.isReloading = false;
+            },
+        };
+    }
     $(function() {
+        tabsService.setId("{{ tab.id }}");
         $('[tab-ajax="true"]').click(function(e) {
             e.preventDefault();
             $this = $(this);
-            if($this.parent().hasClass("active") == true){
+            if(tabsService.isReloading === false && $this.parent().hasClass("active") == true){
                 return;
             }
+            tabsService.done();
             var targ = $(this).attr('href');
             var loadurl = $(this).attr('data-url');
             $(targ).html($("#lo-{{ tab.id }}").html());
@@ -64,5 +82,6 @@
         -moz-box-shadow: 1px 0 10px 1px rgba(0, 0, 0, 0.3);
         box-shadow: 1px 0 10px 1px rgba(0, 0, 0, 0.3);
         margin-bottom: 20px;
+        min-height: 16em;
     }
 </style>
