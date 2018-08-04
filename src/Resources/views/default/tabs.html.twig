@@ -30,13 +30,22 @@
     {% endfor %}
 </div>
 <div id="lo-{{ tab.id }}" class="hide">
-    <div class="tab-pane">{{ "Loading content"|trans }}</div>
+    <div class="tab-pane l-loading-container">
+        {{ "Loading content"|trans }}
+        <div class='loading'><p class='blocktext'>
+                
+                <span class='ellipsis_animated-inner'>
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
+            </span></p></div></div>
 </div>
 <script>
     if(tabsService === undefined){
         var tabsService = {
             id: null,
             isReloading: false,
+            lastTabContentId: null,
             setId: function(id){
                 this.id = id;
             },
@@ -47,6 +56,22 @@
             done: function(){
                 this.isReloading = false;
             },
+            loading: function(){
+                $("#"+tabsService.id).html($("#lo-"+tabsService.id).html());
+            },
+            loadContent: function(url,tabContentId){
+                if(tabContentId){
+                    this.lastTabContentId = tabContentId;
+                }
+                var self = $(this.lastTabContentId);
+                $(this.lastTabContentId).html($("#lo-"+tabsService.id).html());
+                $(this.lastTabContentId).load(url+'?ajax=true', function(response, status, xhr){
+                    $('#'+tabsService.id).tab(); //reinitialize tabs
+                    if(status == "error"){
+                        self.html("<b>{{ "modal.error.loading.content"|trans }}</b> <br/><br/>"+ xhr.status + " " + xhr.statusText);
+                    }
+                });
+            }
         };
     }
     $(function() {
@@ -58,13 +83,9 @@
                 return;
             }
             tabsService.done();
-            var targ = $(this).attr('href');
+            var tabContent = $(this).attr('href');
             var loadurl = $(this).attr('data-url');
-            $(targ).html($("#lo-{{ tab.id }}").html());
-            $(targ).load(loadurl+'?ajax=true', function(){
-                $this.tab('show');
-                $('#{{ tab.id }}').tab(); //reinitialize tabs
-            });
+            tabsService.loadContent(loadurl,tabContent);
         });
     });
 </script>

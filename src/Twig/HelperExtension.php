@@ -43,9 +43,10 @@ class HelperExtension extends AbstractExtension
         return $extension->renderEntityField($twig,$action,$fieldMetadata["name"],$item,$meta);
     }
     
-    public function renderShowObject(Twig_Environment $twig,$item) {
+    public function renderShowObject(Twig_Environment $twig,$item,$label = null) {
         return $twig->render("EasyAdminExtensionBundle:includes:_actions.html.twig",[
-            "item" => $item
+            "item" => $item,
+            "label" => $label,
         ]);
     }
 }

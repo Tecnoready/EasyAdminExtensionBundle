@@ -1,1 +1,1 @@
-<a href="{{ easyadmin_path(item,"show") }}">{{ "action.show"|trans }}</a>
+<a href="{{ easyadmin_path(item,"show") }}">{% if label is not null %}{{ label }}{% else %}{{ "action.show"|trans }}{% endif %}</a>
