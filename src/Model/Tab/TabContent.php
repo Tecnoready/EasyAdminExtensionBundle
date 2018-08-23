@@ -36,6 +36,12 @@ class TabContent {
      * @var array
      */
     private $fields;
+    
+    /**
+     * ¿Activa?
+     * @var booelan
+     */
+    private $active = false;
 
     public function __construct(array $options = []) {
         $this->setOptions($options);
@@ -125,6 +131,15 @@ class TabContent {
         return $this;
     }
     
+    public function getActive() {
+        return $this->active;
+    }
+
+    public function setActive($active) {
+        $this->active = $active;
+        return $this;
+    }
+        
     /**
      * Representacion de la tab en arary
      * @return array

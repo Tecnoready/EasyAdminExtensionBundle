@@ -6,6 +6,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AdminController as BaseAdminContr
 use EasyCorp\Bundle\EasyAdminBundle\Event\EasyAdminEvents;
 use AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab;
 use AlterPHP\EasyAdminExtensionBundle\Model\Tab\TabContent;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 class AdminController extends BaseAdminController
 {
@@ -60,6 +61,10 @@ class AdminController extends BaseAdminController
         $fields = $this->entity['show']['fields'];
         $deleteForm = $this->createDeleteForm($this->entity['name'], $id);
         $tab = null;
+        $currentTab = null;
+        if($this->request->getSession()->has(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB)){
+            $currentTab = $this->request->getSession()->get(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB);
+        }
         foreach ($fields as $field => $metadata) {
             if($metadata["type"] == Tab::TAB_TITLE){
                 $tab = Tab::createFromMetadata($metadata);
@@ -82,6 +87,9 @@ class AdminController extends BaseAdminController
                 unset($fields[$field]);
             }
         }
+        if($tab !== null){
+            $tab->resolveCurrentTab($currentTab);
+        }
         $this->dispatch(EasyAdminEvents::POST_SHOW, array(
             'deleteForm' => $deleteForm,
             'fields' => $fields,
@@ -96,5 +104,16 @@ class AdminController extends BaseAdminController
         );
 
         return $this->executeDynamicMethod('render<EntityName>Template', array('show', $this->entity['templates']['show'], $parameters));
+    }
+    
+    /**
+     * @Route("/tab", name="easyadmin_tab")
+     */
+    public function tabAction(\Symfony\Component\HttpFoundation\Request $request) {
+        if($request->query->has(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB)){
+            $request->getSession()->set(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB,$request->query->get(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB));
+            var_dump($request->query->get(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB));
+        }
+        return new \Symfony\Component\HttpFoundation\JsonResponse();
     }
 }

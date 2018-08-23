@@ -11,8 +11,8 @@
     <li>
         <ul id="{{ tab.id }}" class="nav nav-tabs" style="margin: 0;">
             {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
-                <li {% if loop.first %}class="active"{% endif%}>
-                    <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}" {% if tabContent.route is not null %}tab-ajax="true" data-url="{{ url(tabContent.route,tabContent.routeParameters) }}"{% endif %}>
+                <li {% if tabContent.active %}class="active"{% endif%}>
+                    <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}" {% if tabContent.route is not null %}tab-ajax="true" data-url="{{ url(tabContent.route,tabContent.routeParameters) }}"{% else %}tab-ajax="false"{% endif %}>
                         {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabContent.title|trans }}
                     </a>
                 </li>
@@ -22,7 +22,7 @@
 </ul>
 <div class="tab-content">
     {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
-        <div class="tab-pane {% if loop.first %}active{% endif%}" id="{{ tabContent.id }}">
+        <div class="tab-pane {% if tabContent.active %}active{% endif%}" id="{{ tabContent.id }}">
             {% for field, metadata in tabContent.fields %}
                 {% include 'EasyAdminExtensionBundle:default:field_show.html.twig' %}
             {% endfor %}
@@ -45,6 +45,7 @@
         var tabsService = {
             id: null,
             isReloading: false,
+            forceLoad: false,
             lastTabContentId: null,
             setId: function(id){
                 this.id = id;
@@ -59,16 +60,24 @@
             loading: function(){
                 $("#"+tabsService.id).html($("#lo-"+tabsService.id).html());
             },
-            loadContent: function(url,tabContentId){
+            loadContent: function(url,tabContentId,parameters){
                 if(tabContentId){
                     this.lastTabContentId = tabContentId;
                 }
                 var self = $(this.lastTabContentId);
+                if(!parameters){
+                    parameters = {};
+                }
+                parameters["ajax"] = "true";
+                var qs = jQuery.param( parameters );
+                url += ((url.indexOf('?') == -1) ? '?' : '&') + qs;
                 $(this.lastTabContentId).html($("#lo-"+tabsService.id).html());
-                $(this.lastTabContentId).load(url+'?ajax=true', function(response, status, xhr){
+                $(this.lastTabContentId).load(url, function(response, status, xhr){
                     $('#'+tabsService.id).tab(); //reinitialize tabs
                     if(status == "error"){
                         self.html("<b>{{ "modal.error.loading.content"|trans }}</b> <br/><br/>"+ xhr.status + " " + xhr.statusText);
+                    }else if(status == "success"){
+                        self.data("loaded",true);
                     }
                 });
             }
@@ -76,17 +85,48 @@
     }
     $(function() {
         tabsService.setId("{{ tab.id }}");
+        $('[tab-ajax="true"]').dblclick(function(e) {
+            e.preventDefault();
+            tabsService.forceLoad = true;
+            $(this).click();
+        });
+        var currentTabRequest = null;
+        $('[data-toggle="tab"]').click(function(e) {
+            e.preventDefault();
+            $this = $(this);
+            if($this.parent().hasClass("active") == true){
+                clearTimeout(currentTabRequest);
+                return;
+            }
+            var tabContent = $this.attr('href');
+            var current = jQuery.param({ {{ constant('AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::NAME_CURRENT_TAB') }}:$this.parent().parent().attr("id")+tabContent});
+            clearTimeout(currentTabRequest);
+            currentTabRequest = setTimeout(function(){  
+                $.ajax({
+                    url: "{{ path("easyadmin_tab") }}?"+current
+                });
+            }, 2000);
+        });
         $('[tab-ajax="true"]').click(function(e) {
             e.preventDefault();
             $this = $(this);
-            if(tabsService.isReloading === false && $this.parent().hasClass("active") == true){
+            var tabContent = $(this).attr('href');
+            var tabContentObj = $(tabContent);
+            var loaded = tabContentObj.data("loaded");
+            if(tabsService.forceLoad === false && tabsService.isReloading === false && $this.parent().hasClass("active") == true){
                 return;
             }
+            if(tabsService.forceLoad === false && loaded === true){
+                return;
+            }
+            tabsService.forceLoad = false;
             tabsService.done();
-            var tabContent = $(this).attr('href');
             var loadurl = $(this).attr('data-url');
-            tabsService.loadContent(loadurl,tabContent);
+            var current = $this.parent().parent().attr("id")+tabContent;
+            tabsService.loadContent(loadurl,tabContent,{'{{ constant('AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::NAME_CURRENT_TAB') }}':current});
         });
+        tabsService.forceLoad = true;
+        tabsService.reload();
     });
 </script>
 <style>
