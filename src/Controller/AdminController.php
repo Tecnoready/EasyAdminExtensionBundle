@@ -112,7 +112,6 @@ class AdminController extends BaseAdminController
     public function tabAction(\Symfony\Component\HttpFoundation\Request $request) {
         if($request->query->has(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB)){
             $request->getSession()->set(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB,$request->query->get(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB));
-            var_dump($request->query->get(\AlterPHP\EasyAdminExtensionBundle\Model\Tab\Tab::NAME_CURRENT_TAB));
         }
         return new \Symfony\Component\HttpFoundation\JsonResponse();
     }
