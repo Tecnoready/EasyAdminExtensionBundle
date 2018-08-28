@@ -1,0 +1,12 @@
+{% set _list_item_actions = easyadmin_get_actions_for_list_item(entityName) %}
+{% if _list_item_actions|length > 0 %}
+    {% block item_actions %}
+        {{ include('@EasyAdmin/default/includes/_actions.html.twig', {
+            actions: _list_item_actions,
+            request_parameters: _request_parameters,
+            translation_domain: translation_domain|default('messages'),
+            trans_parameters: {},
+            item_id: item.id
+        }, with_context = false) }}
+    {% endblock item_actions %}
+{% endif %}
