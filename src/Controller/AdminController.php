@@ -85,6 +85,10 @@ class AdminController extends BaseAdminController
                 $tabContent = $tab->getLastTabContent();
                 $tabContent->addField($field,$metadata);
                 unset($fields[$field]);
+            }else if($tab !== null && !isset($metadata["property"])){
+                $tabContent = $tab->getLastTabContent();
+                $tabContent->addField($field,$metadata);
+                unset($fields[$field]);
             }
         }
         if($tab !== null){
