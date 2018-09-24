@@ -6,8 +6,9 @@
         <ul id="{{ tab.id }}" class="nav nav-tabs" style="margin: 0;">
             {% for tabContent in tab.tabsContent if tabContent.type == constant("AlterPHP\\EasyAdminExtensionBundle\\Model\\Tab\\Tab::TAB_CONTENT") %}
                 <li {% if tabContent.active %}class="active"{% endif%}>
-                    <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabContent.title }}" {% if tabContent.route is not null %}tab-ajax="true" data-url="{{ url(tabContent.route,tabContent.routeParameters) }}"{% else %}tab-ajax="false"{% endif %}>
-                        {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabContent.title|trans }}
+                    {% set tabTitle = tabContent.title|trans %}
+                    <a data-toggle="tab" href="#{{ tabContent.id }}" title="{{ tabTitle }}" {% if tabContent.route is not null %}tab-ajax="true" data-url="{{ url(tabContent.route,tabContent.routeParameters) }}"{% else %}tab-ajax="false"{% endif %}>
+                        {% if tabContent.icon is not null %}<i class="{{ tabContent.icon }}"></i>&nbsp;{% endif %}{{ tabTitle }}
                     </a>
                 </li>
             {% endfor %}
