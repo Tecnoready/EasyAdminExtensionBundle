@@ -11,9 +11,6 @@
 
 namespace AlterPHP\EasyAdminExtensionBundle\Model\Tab;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\DependencyInjection\Container;
-
 /**
  * Contenido de tab
  *
@@ -28,21 +25,27 @@ class TabContent {
      * @var Tab::TAB_* 
      */
     private $type;
-    private $url;
-    private $name;
-    private $order;
     private $options;
-    private $active = false;
     private $title;
+    private $icon;
+    private $route;
+    private $routeParameters;
     
     /**
      * Metadata of properties
      * @var array
      */
     private $fields;
+    
+    /**
+     * ¿Activa?
+     * @var booelan
+     */
+    private $active = false;
 
     public function __construct(array $options = []) {
         $this->setOptions($options);
+        $this->id = uniqid("tc-");
         $this->fields = [];
     }
     
@@ -52,14 +55,7 @@ class TabContent {
      * @return \Pandco\Bundle\AppBundle\Model\Core\Tab\TabContent
      */
     public function setOptions(array $options = []) {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            "add_content_div" => true,
-            "url" => null,
-        ]);
-//        $resolver->setRequired(["url"]);
-        $this->options = $resolver->resolve($options);
-        
+        $this->options = $options;
         return $this;
     }
     
@@ -72,23 +68,6 @@ class TabContent {
         return $this->options[$name];
     }
     
-    public function getUrl() {
-        return $this->url;
-    }
-
-    public function getName() {
-        return $this->name;
-    }
-
-    public function getOrder() {
-        return $this->order;
-    }
-
-    public function setUrl($url) {
-        $this->url = $url;
-        return $this;
-    }
-    
     public function getType() {
         return $this->type;
     }
@@ -98,32 +77,12 @@ class TabContent {
         return $this;
     }
 
-    
-    public function setName($name) {
-        $this->name = $name;
-        return $this;
-    }
-
-    public function setOrder($order) {
-        $this->order = $order;
-        return $this;
-    }
-    
     public function getId() {
         return $this->id;
     }
 
     public function setId($id) {
         $this->id = $id;
-        return $this;
-    }
-    
-    public function getActive() {
-        return $this->active;
-    }
-    
-    public function setActive($active) {
-        $this->active = $active;
         return $this;
     }
     
@@ -139,12 +98,48 @@ class TabContent {
     public function getFields() {
         return $this->fields;
     }
+    
+    public function getRoute() {
+        return $this->route;
+    }
+
+    public function getRouteParameters() {
+        return $this->routeParameters;
+    }
+
+    public function setRoute($route) {
+        $this->route = $route;
+        return $this;
+    }
+
+    public function setRouteParameters(array $routeParameters) {
+        $this->routeParameters = $routeParameters;
+        return $this;
+    }
+    
+    public function getIcon() {
+        return $this->icon;
+    }
+
+    public function setIcon($icon) {
+        $this->icon = $icon;
+        return $this;
+    }
 
     public function addField($field,array $metadata) {
         $this->fields[$field] = $metadata;
         return $this;
     }
+    
+    public function getActive() {
+        return $this->active;
+    }
 
+    public function setActive($active) {
+        $this->active = $active;
+        return $this;
+    }
+        
     /**
      * Representacion de la tab en arary
      * @return array
@@ -152,26 +147,27 @@ class TabContent {
     public function toArray() {
         $data = [
             "id" => $this->id,
-            "name" => $this->name,
-            "active" => $this->active,
             "options" => $this->options,
             "title" => $this->title,
         ];
         return $data;
     }
     
-    public static function createFromMetadata(array $metadata,Container $container) {
+    public static function createFromMetadata(array $metadata) {
         $instance = new self();
         
-        $instance->setName($metadata["title"]);
+        $instance->setTitle($metadata["title"]);
         $instance->setType($metadata["type"]);
+        if(isset($metadata["icon"])){
+            $instance->setIcon($metadata["icon"]);
+        }
         
         if(isset($metadata["route"])){
-            $routeParameters = isset($metadata["route_parameters"]) ? $metadata["route"] : [];
+            $routeParameters = isset($metadata["route_parameters"]) ? $metadata["route_parameters"] : [];
             $instance
-                    ->setUrl($container
-                            ->get("router")
-                            ->generate($metadata["route"], $routeParameters,\Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_PATH));
+                    ->setRoute($metadata["route"])
+                    ->setRouteParameters($routeParameters)
+                    ;
         }
         
         return $instance;
